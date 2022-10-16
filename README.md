@@ -78,13 +78,13 @@
 >>以上参数，也是从论坛中浏览大佬分享的参数总结出来的。最有意思的是 申请的42，seed玄学设置为42总比别的好，原因嘛，玄学，好像还有论文专门总结过这个，此处不是我们研究的重点，感兴趣的小伙伴可以google scholar。<br>
 >>调参并不是我们主要内容，大家随便看看即可。此处也粘贴该竞赛排名第一的大佬参数，（感谢大佬无私分享，大佬具体代码链接也会在附录中粘贴，供感兴趣小伙伴浏览）。<br>
 >>> 'lgb_params':{ 'objective' : 'binary', 'metric' : 'binary_logloss', 'boosting': 'dart', 'max_depth' : -1, 'num_leaves' : 64, 'learning_rate' : 0.035, 'bagging_freq': 5, 'bagging_fraction' : 0.75, 'feature_fraction' : 0.05, 'min_data_in_leaf': 256, 'max_bin': 63, 'min_data_in_bin': 256, #'min_sum_heassian_in_leaf': 10, 'tree_learner': 'serial', 'boost_from_average': 'false', 'lambda_l1' : 0.1, 'lambda_l2' : 30, 'num_threads': 24, 'verbosity' : 1, }, <br>
-数据集的庞大，也不适合大家在参数上花费较多的时间去调整，但lgbm还是有诸多参数调节的小技巧。例如 boosting选择 gbdt 和dart（带dropout的gbdt）最后得出来的分数差异还比较大; learning_rate选择也比较重要，一般大家选择 < 0.05即可，num_leaves 控制树上叶子数，默认31，max_depth 控制树深，此处可选择默认值-1，即无限制。还有诸多注意事项，若之后做小数据集的分类预测，可以多做做lgbm调参，再给大家具体分享。（该数据集已经耗费我100+租服务器费用了！！赚钱不易）。<br>
+>>数据集的庞大，也不适合大家在参数上花费较多的时间去调整，但lgbm还是有诸多参数调节的小技巧。例如 boosting选择 gbdt 和dart（带dropout的gbdt）最后得出来的分数差异还比较大; >>learning_rate选择也比较重要，一般大家选择 < 0.05即可，num_leaves 控制树上叶子数，默认31，max_depth 控制树深，此处可选择默认值-1，即无限制。还有诸多注意事项，若之后做小数据集>>的分类预测，可以多做做lgbm调参，再给大家具体分享。（该数据集已经耗费我100+租服务器费用了！！赚钱不易）。<br>
 
-模型交叉验证也是大数据集模型搭建的重点，sklearn 则提供了 Kfold，StratifiedKfold，GroupKfold诸多选择，此处我们选择StratifiedKfold，因为该函数尽可能保证划分后数据集与原始数据集近似。
-最后即可以开始 lgb.train，model.save_model，model.predict。当开始预测 test数据集时候，我们可以选择最优模型直接预测也可以对不同fold预测结果求均值。这样一个完整的lgb模型搭建完毕。
-Xgb，catgboost等别的模型则万变不离其宗，皆可举一反三。
+>>模型交叉验证也是大数据集模型搭建的重点，sklearn 则提供了 Kfold，StratifiedKfold，GroupKfold诸多选择，此处我们选择StratifiedKfold，因为该函数尽可能保证划分后数据集与原始数据集近似。<br>
+>>最后即可以开始 lgb.train，model.save_model，model.predict。当开始预测 test数据集时候，我们可以选择最优模型直接预测也可以对不同fold预测结果求均值。这样一个完整的lgb模型搭建完毕。<br>
+>>Xgb，catgboost等别的模型则万变不离其宗，皆可举一反三。<br>
 
-五、融合模型，提升预测分数与模型鲁棒性
+## 融合模型，提升预测分数与模型鲁棒性
 本着一切皆可融合的理念，接下来则是对不同模型的融合，融合过程也简单，则是对不同模型预测分数进行函数式汇总，具体如 Ax1 + Bx2 + Cx3 = score。
 单个模型可能实力有限，多个模型分的融合能够给准确率带来一个飞跃。当然我们也应遵循奥卡姆剃刀原理，“在其他一切同等的情况下，较简单的解释比复杂的好”。如果强行融合 n+模型，最终模型可能陷入过拟合，得不偿失。
 
