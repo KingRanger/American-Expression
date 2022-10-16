@@ -35,6 +35,7 @@
 
 ## 三、 变量衍生与特征工程
 >> 经过一番数据探索性分析，我想大家对该样本有了一定的理解，那么我就可以进行变量衍生了。俺是百分百相信就这自带变量绝不可能有一个好的结果，不然比赛就变成一个调参比赛了。最终胜者可能不一定是大神，但一定是最幸运的人。<br>
+>> 
 >> 正常的变量衍生，我们一定是根据变量的实际含义进行衍生，或加减乘除，或做比率同比环比，或做数学公式 收入-成本=利润，但我们实际拿到的是脱敏变量，那就得发挥想象力，只要想得多，变量就衍生的多。模型好不好不知道，但肯定差不到哪去。<br>
 ### 变量衍生：
 >> First，我们从容易思考的角度做衍生（描述性统计），对于两种变量，分别做：<br>
@@ -51,31 +52,33 @@
 >> * 缺失变量的处理，对于缺失率超过95%，选择直接剔除；缺失率小于 5%的，选择mean/median 填充，其余全部填为0，当然还有别的处理方式。在该竞赛中，我觉得此处的处理影响不大。具体实际业务则应具体情况具体考虑，当然本人经历业务中，一般对于缺失率99%+才会剔除，（小厂数据囊中羞涩，将就用~）。<br>
 >> * 异常值处理：本人在竞赛中并没有处理异常值，看 kaggle论坛中的大神们也并没有处理，赛后重新思考，觉得是不是可以针对每一个customer id 剔除掉异常样本呢。大家仁者见仁智者见智，敢想敢拼。<br>
 
-四、模型选择与训练
-	对于金融类数据分类预测模型，可选 LR，XGB, Lightgbm, catboost, DNN。对于本样本而言，LR可以排除，样本量极大，线性关系可能性较小，LR大概率不会得到一个好的模型。（此处，博主在唠叨一句，实际业务中，一些银行更倾向 LR，除了LR适合建评分卡之外，LR模型可解释性较强，在金融领域，模型可解释性所占比重较高。）
-	比赛周期较长，所以大家在前期可以使用单个不同模型进行建模，其实只要特征衍生做得好，建模则相对容易。
-     模型搭建的模板大体一样，设定模型参数，搭建 CVfolds，输出/保存模型，预测分数，检验分数，查看特征重要性，筛选特征，优化模型 ……,博主这里就举一个 lightgbm的例子，也是我诸多单个模型中表现最好的模型。
-	首先是参数选择：以下为博主建模选择参数，（其实在该竞赛中特征衍生和模型融合做得好，参数全部默认都可以）
-    params = {
-        'objective': 'binary',
-        'metric': 'binary_logloss',
-        'boosting':'dart',
-        'seed': 42,
-        'num_leaves': 100,
-        'learning_rate': 0.01,
-        'feature_fraction': 0.20,
-        'bagging_fraction': 0.50,
-        'max_depth': -1, 
-        'bagging_freq': 10,
-        'n_jobs': -1,
-        'lambda_l1': 0.1,
-        'lambda_l2': 2,
-        'min_data_in_leaf': 40
-       }
-以上参数，也是从论坛中浏览大佬分享的参数总结出来的。最有意思的是 申请的42，seed玄学设置为42总比别的好，原因嘛，玄学，好像还有论文专门总结过这个，此处不是我们研究的重点，感兴趣的小伙伴可以google scholar。
-调参并不是我们主要内容，大家随便看看即可。此处也粘贴该竞赛排名第一的大佬参数，（感谢大佬无私分享，大佬具体代码链接也会在附录中粘贴，供感兴趣小伙伴浏览）。
-'lgb_params':{ 'objective' : 'binary', 'metric' : 'binary_logloss', 'boosting': 'dart', 'max_depth' : -1, 'num_leaves' : 64, 'learning_rate' : 0.035, 'bagging_freq': 5, 'bagging_fraction' : 0.75, 'feature_fraction' : 0.05, 'min_data_in_leaf': 256, 'max_bin': 63, 'min_data_in_bin': 256, #'min_sum_heassian_in_leaf': 10, 'tree_learner': 'serial', 'boost_from_average': 'false', 'lambda_l1' : 0.1, 'lambda_l2' : 30, 'num_threads': 24, 'verbosity' : 1, }, 
-数据集的庞大，也不适合大家在参数上花费较多的时间去调整，但lgbm还是有诸多参数调节的小技巧。例如 boosting选择 gbdt 和dart（带dropout的gbdt）最后得出来的分数差异还比较大; learning_rate选择也比较重要，一般大家选择 < 0.05即可，num_leaves 控制树上叶子数，默认31，max_depth 控制树深，此处可选择默认值-1，即无限制。还有诸多注意事项，若之后做小数据集的分类预测，可以多做做lgbm调参，再给大家具体分享。（该数据集已经耗费我100+租服务器费用了！！赚钱不易）。
+## 模型选择与训练
+>> 对于金融类数据分类预测模型，可选 LR，XGB, Lightgbm, catboost, DNN。对于本样本而言，LR可以排除，样本量极大，线性关系可能性较小，LR大概率不会得到一个好的模型。（此处，博主在唠叨一句，实际业务中，一些银行更倾向 LR，除了LR适合建评分卡之外，LR模型可解释性较强，在金融领域，模型可解释性所占比重较高。）<br>
+>> 
+>> 比赛周期较长，所以大家在前期可以使用单个不同模型进行建模，其实只要特征衍生做得好，建模则相对容易。<br>
+>>>> 模型搭建的模板大体一样，设定模型参数，搭建 CVfolds，输出/保存模型，预测分数，检验分数，查看特征重要性，筛选特征，优化模型 ……,博主这里就举一个 lightgbm的例子，也是我诸多单个模型中表现最好的模型。<br>
+>>>> 
+>> 首先是参数选择：以下为博主建模选择参数，（其实在该竞赛中特征衍生和模型融合做得好，参数全部默认都可以）<br>
+>>>   params = {<br>
+>>>>         'objective': 'binary',<br>
+>>>>        'metric': 'binary_logloss',<br>
+>>>>         'boosting':'dart',<br>
+>>>>         'seed': 42,<br>
+>>>>         'num_leaves': 100,<br>
+>>>>         'learning_rate': 0.01,<br>
+>>>>         'feature_fraction': 0.20,<br>
+>>>>         'bagging_fraction': 0.50,<br>
+>>>>         'max_depth': -1, <br>
+>>>>         'bagging_freq': 10,<br>
+>>>>         'n_jobs': -1,<br>
+>>>>         'lambda_l1': 0.1,<br>
+>>>>         'lambda_l2': 2,<br>
+>>>>         'min_data_in_leaf': 40<br>
+>>>>        }<br>
+>>以上参数，也是从论坛中浏览大佬分享的参数总结出来的。最有意思的是 申请的42，seed玄学设置为42总比别的好，原因嘛，玄学，好像还有论文专门总结过这个，此处不是我们研究的重点，感兴趣的小伙伴可以google scholar。<br>
+>>调参并不是我们主要内容，大家随便看看即可。此处也粘贴该竞赛排名第一的大佬参数，（感谢大佬无私分享，大佬具体代码链接也会在附录中粘贴，供感兴趣小伙伴浏览）。<br>
+>>> 'lgb_params':{ 'objective' : 'binary', 'metric' : 'binary_logloss', 'boosting': 'dart', 'max_depth' : -1, 'num_leaves' : 64, 'learning_rate' : 0.035, 'bagging_freq': 5, 'bagging_fraction' : 0.75, 'feature_fraction' : 0.05, 'min_data_in_leaf': 256, 'max_bin': 63, 'min_data_in_bin': 256, #'min_sum_heassian_in_leaf': 10, 'tree_learner': 'serial', 'boost_from_average': 'false', 'lambda_l1' : 0.1, 'lambda_l2' : 30, 'num_threads': 24, 'verbosity' : 1, }, <br>
+数据集的庞大，也不适合大家在参数上花费较多的时间去调整，但lgbm还是有诸多参数调节的小技巧。例如 boosting选择 gbdt 和dart（带dropout的gbdt）最后得出来的分数差异还比较大; learning_rate选择也比较重要，一般大家选择 < 0.05即可，num_leaves 控制树上叶子数，默认31，max_depth 控制树深，此处可选择默认值-1，即无限制。还有诸多注意事项，若之后做小数据集的分类预测，可以多做做lgbm调参，再给大家具体分享。（该数据集已经耗费我100+租服务器费用了！！赚钱不易）。<br>
 
 模型交叉验证也是大数据集模型搭建的重点，sklearn 则提供了 Kfold，StratifiedKfold，GroupKfold诸多选择，此处我们选择StratifiedKfold，因为该函数尽可能保证划分后数据集与原始数据集近似。
 最后即可以开始 lgb.train，model.save_model，model.predict。当开始预测 test数据集时候，我们可以选择最优模型直接预测也可以对不同fold预测结果求均值。这样一个完整的lgb模型搭建完毕。
@@ -99,7 +102,7 @@ Xgb，catgboost等别的模型则万变不离其宗，皆可举一反三。
 该竞赛优秀作品：
 https://www.kaggle.com/competitions/amex-default-prediction/discussion/348961  
 
-![image](https://user-images.githubusercontent.com/68267592/196034044-c9d2b4b4-da3a-4d58-a151-6388aa43f8bf.png)
+
 
 
 
