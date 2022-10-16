@@ -40,8 +40,10 @@
 >> First，我们从容易思考的角度做衍生（描述性统计），对于两种变量，分别做：<br>
 >> * Categorical features: mean, std, sum, last <br>
 >> * Numerical features: mean, std, sum, min, max, last.<br>
+>> 
 >> Second, 我们可以对临近变量做diff工作，也就是记录临近变量的差值，具体做法就是 dataframe - （dataframe 向下平移一层）。<br>
->> Third，keep considering ……<br>
+>> 
+>> Third，keep considering …… <br>
 >> 变量中‘S_2’记录了时间，针对时间又可进行拆分成年月日周，针对不同的时间我们可以统计某一个时间区间内的 mean，std，sum 等，再进行 diff工作。（在比赛中我们可尽可能多的联想衍生特征，最终特征能不能用只有入模看效果才会知道）<br>
 >> Attention：在实际业务建模中，慎重使用时间列直接入模，该变量可能导致模型效果在train中虚高，也就是对未来未知数据集的泛化能力不足。<br>
 ### 特征工程：
